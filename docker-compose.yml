@@ -1,0 +1,46 @@
+volumes:
+  api:
+  cache:
+  client:
+  db:
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile-${env:-dev}
+    container_name: api_container
+    ports:
+      - '3000:3000'
+      - '3333:3333'
+    restart: always
+    volumes:
+      - ./api:/usr/src/app/api
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile-${env:-dev}
+    container_name: client_container
+    ports:
+      - "3001:3001"
+    restart: always
+    volumes:
+      - ./client:/usr/src/app/client
+  db:
+    container_name: db_container
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+    image: mongo
+    ports:
+      - ${DATABASE_PORT}
+    restart: always
+    volumes:
+      - db:/data/db
+  cache:
+    image: redis
+    restart: always
+    container_name: cache_container
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data/cache
